@@ -1,0 +1,2 @@
+1) completed installing ubuntu 20.04 LTS
+2) I am ready to use git and github
