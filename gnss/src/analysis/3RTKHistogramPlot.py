@@ -3,9 +3,9 @@ import matplotlib.pyplot as plt
 import pandas as pd
 # Read the CSV file into a pandas DataFrame
 # df = pd.read_csv("/home/rohit/gnss/Walking200m.csv")
-df = pd.read_csv("/home/rohit/gnss/Stationary5min.csv")
+df = pd.read_csv("/home/rohit/gnss/OpenRTK.csv")
 #Occluded 
-df1 = pd.read_csv("/home/rohit/gnss/Stationary5minsOc.csv")
+df1 = pd.read_csv("/home/rohit/gnss/OcculededRTK.csv")
 # Display the first few rows of the DataFrame to understand its structure
 print(df.head())
 print(df1.head())
@@ -33,7 +33,7 @@ plt.hist(distances1, bins=20, color='red',edgecolor='black', alpha=0.3,label="St
 plt.axvline(np.mean(distances1), color='red', linestyle='dashed', linewidth=2, label='Mean Distance of Occluded')
 plt.xlabel('Euclidean Distance to Centroid (m)')
 plt.ylabel('Frequency (Hz)')
-plt.title('Histogram of Euclidean Distances to Centroid - occluded')
+plt.title('RTK - Histogram of Euclidean Distances to Centroid - occluded')
 plt.legend()
 
 # Show the plot

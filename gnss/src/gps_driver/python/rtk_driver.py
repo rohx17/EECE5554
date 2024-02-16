@@ -7,21 +7,21 @@ import serial
 import rospy
 import rosbag
 from std_msgs.msg import Header
-from gps_driver.msg import Customgps
+from gps_driver.msg import Customrtk
 
 
 
 def ReadFromSerial(serialPortAddr):
     serialPort = serial.Serial(serialPortAddr,rospy.get_param("~baud", "4800"))
     try:
-        gpggaRead = serialPort.readline().decode('utf-8').strip()
+        gnggaRead = serialPort.readline().decode('utf-8').strip()
         serialPort.close()
     except UnicodeDecodeError:
-        gpggaRead= serialPort.readline().decode('utf-8').strip()
+        gnggaRead= serialPort.readline().decode('utf-8').strip()
         serialPort.close()
-    print(gpggaRead)
+    print(gnggaRead)
     # #Do not modify
-    return gpggaRead
+    return gnggaRead
 
 
 def degMinstoDegDec(Latorlong):
@@ -44,15 +44,15 @@ def LatLongSignConvetion(LatOrLong, LatOrLongDir):
 
 
 
-def isGPGGAinString(inputString):
-    if inputString.find("$GPGGA") == 0: #replace 1 == 1 with condition to be checked for inputString
-        #print('Great success!')
+def isgnggainString(inputString):
+    if inputString.find("$GNGGA") == 0: #replace 1 == 1 with condition to be checked for inputString
+        print('Great success!')
         #print(inputString)
         f=1
         return f
 
     else:
-        #print('GPGGA not found in string')
+        print('gngga not found in string')
         f=0
         return f
 
@@ -82,10 +82,9 @@ def UTCtoUTCEpoch(UTC):
 
     
 if __name__ == "__main__":
-    
     i=1
-    pub = rospy.Publisher('gps', Customgps, queue_size=10)
-    rospy.init_node('gps_driver_node', anonymous=True)
+    pub = rospy.Publisher('rtk_gnss', Customrtk, queue_size=10)
+    rospy.init_node('rtk_driver_node', anonymous=True)
     rate = rospy.Rate(10) # 10hz
     rospy.loginfo("Publisher Node Started, now publishing messages")
     bag=rosbag.Bag('/home/rohit/catkin_ws/tester.bag','w')
@@ -93,57 +92,62 @@ if __name__ == "__main__":
     #print('1')
     while not rospy.is_shutdown():
         serialPortAddr = rospy.get_param("~port", "/dev/pts/2") 
-        gpggaRead = ReadFromSerial(serialPortAddr)
-        #gpggaRead = '$GPGGA,210230,3855.4487,N,09446.0071,W,1,07,1.1,370.5,M,-29.5,M,,*7A'
-        #print('2')
-        f1 = isGPGGAinString(gpggaRead)
+        gnggaRead = ReadFromSerial(serialPortAddr)
+        #gnggaRead = '$GNGGA,165027.00,4220.2947440,N,07105.1903912,W,5,20,0.8,23.896,M,-28.725,M,1.0,0061*5E'
+        # print('2')
+        f1 = isgnggainString(gnggaRead)
         if f1 == 1:
                 
              try:
-                #print('3')
-                gpggaSplit = gpggaRead.split(',') #Put code here that will split gpggaRead into its components. This should only take one line.
+                # print('3')
+                gnggaSplit = gnggaRead.split(',') #Put code here that will split gnggaRead into its components. This should only take one line.
 
-                size=len(gpggaSplit)
-                if gpggaSplit[1] == '':
+                size=len(gnggaSplit)
+                if gnggaSplit[1] == '':
                     continue
                 else:
-                    UTC = float(gpggaSplit[1])
+                    UTC = float(gnggaSplit[1])
                 
-                if gpggaSplit[2] == '':
+                if gnggaSplit[2] == '':
                     continue
                 else:
-                    Latitude = float(gpggaSplit[2])
+                    Latitude = float(gnggaSplit[2])
 
-                if gpggaSplit[3] == '':
+                if gnggaSplit[3] == '':
                      continue
                 else:
-                    LatitudeDir = gpggaSplit[3]
+                    LatitudeDir = gnggaSplit[3]
 
                 
-                if gpggaSplit[4] == '':
+                if gnggaSplit[4] == '':
                      continue
                 else:
-                    Longitude = float(gpggaSplit[4])
+                    Longitude = float(gnggaSplit[4])
                 
-                if gpggaSplit[5] == '':
+                if gnggaSplit[5] == '':
                      continue
                 else:
-                    LongitudeDir = gpggaSplit[5]
+                    LongitudeDir = gnggaSplit[5]
                 
-                if gpggaSplit[8] == '':
+                if gnggaSplit[6] == '':
+                     continue
+                else:
+                    fix_quality = int(gnggaSplit[6])
+                
+                if gnggaSplit[8] == '':
                     continue
                 else:
-                    HDOP = float(gpggaSplit[8])
+                    HDOP = float(gnggaSplit[8])
                 
-                #print("4")    
+                # print("4")    
                 Latitudeg=degMinstoDegDec(Latitude)
                 Longitudeg= degMinstoDegDec(Longitude)
                 LatitudeSigned = LatLongSignConvetion(Latitudeg, LatitudeDir)
                 LongitudeSigned = LatLongSignConvetion(Longitudeg, LongitudeDir)
                 [EASTING, NORTHING, ZONE_NUMBER, ZONE_LETTER] =convertToUTM(LatitudeSigned, LongitudeSigned)
                 CurrentTime = UTCtoUTCEpoch(UTC)
-                #print('5')
-                msg=Customgps()
+                # print('5')
+                msg=Customrtk()
                 msg.header = Header()
                 msg.header.seq=i
                 msg.header.frame_id = 'GPS1_Frame'
@@ -151,25 +155,27 @@ if __name__ == "__main__":
                 msg.header.stamp.nsecs = CurrentTime[1]
                 msg.latitude = LatitudeSigned
                 msg.longitude = LongitudeSigned
-                msg.altitude = float(gpggaSplit[9])
+                msg.altitude = float(gnggaSplit[9])
                 msg.utm_easting = EASTING
                 msg.utm_northing = NORTHING
                 msg.zone = ZONE_NUMBER
                 msg.letter = ZONE_LETTER
+                msg.fix_quality = fix_quality
                 msg.hdop = HDOP
-                msg.gpgga_read = gpggaRead
+                msg.gngga_read = gnggaRead
                 pub.publish(msg)
-                bag.write('gps',msg)
-                i=i+1
+                bag.write('rtk_gnss',msg)
                 rate.sleep()
                 print("------------------------------------------")
-                print('Reading:', gpggaRead)
+                print('Reading:', gnggaRead)
+                print("Sqeunce: ", i)
                 print()
                 print("UTC: " +str(UTC))
                 print('Latitude: ', Latitude)
                 print('LatitudeDir: ', LatitudeDir)
                 print('Longitude: ', Longitude)
                 print('LongitudeDir: ', LongitudeDir)
+                print('Fix Quality: ', fix_quality)
                 print('HDOP: ', HDOP)
                 print()
                 print('LatitudeSigned: ',LatitudeSigned)
@@ -182,8 +188,13 @@ if __name__ == "__main__":
                 print('ZONE_NUMBER: ', ZONE_NUMBER)
                 print('ZONE_LETTER: ', ZONE_LETTER)
                 print("------------------------------------------")
+                
+                if i == 322:
+                    print("stop")
+                i=i+1
              except:
                   continue
     print("Saving .bag file")
     bag.close()
+
 

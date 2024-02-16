@@ -1,7 +1,7 @@
 #moving data
 import pandas as pd
 import matplotlib.pyplot as plt
-df = pd.read_csv("/home/rohit/gnss/Walking200m.csv")
+df = pd.read_csv("/home/rohit/gnss/WalkingGPS.csv")
 df['Time']= df['Seconds']
 print(df['Time'])
 # Plot 

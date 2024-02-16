@@ -2,9 +2,10 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 # Read the CSV file into a pandas DataFrame
-df = pd.read_csv("/home/rohit/gnss/Stationary5min.csv")
+
+df = pd.read_csv("/home/rohit/gnss/OpenGPS.csv")
 #Occluded 
-df1 = pd.read_csv("/home/rohit/gnss/Stationary5minsOc.csv")
+df1 = pd.read_csv("/home/rohit/gnss/OccludedGPS.csv")
 df['Time']= df['Seconds'] #+ df['NanoSeconds']
 df1['Time']= df1['Seconds']
 print(df['Time'])

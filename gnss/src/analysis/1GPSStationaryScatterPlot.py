@@ -1,11 +1,12 @@
 #Stationary both plot together
 import pandas as pd
 import matplotlib.pyplot as plt
+import numpy as np
 
 # Read the CSV file into a pandas DataFrame
-df = pd.read_csv("/home/rohit/gnss/Stationary5min.csv")
+df = pd.read_csv("/home/rohit/gnss/OpenGPS.csv")
 #Occluded 
-df1 = pd.read_csv("/home/rohit/gnss/Stationary5minsOc.csv")
+df1 = pd.read_csv("/home/rohit/gnss/OcculededGPS.csv")
 # Display the first few rows of the DataFrame to understand its structure
 print(df.head())
 #Occluded 
@@ -66,3 +67,26 @@ plt.text(centroid_easting1, centroid_northing1, f'Centroid_Occluded: ({centroid_
 plt.legend()
 plt.grid(True)
 plt.show()
+
+
+
+# Load your CSV files
+df_open = df
+df_occluded = df1
+
+# Calculate the centroid of each data set
+centroid_open = df_open[['UTM_Easting', 'UTM_Northing']].mean()
+centroid_occluded = df_occluded[['UTM_Easting', 'UTM_Northing']].mean()
+
+# Calculate the Euclidean distance from each point to the centroid for open data
+errors_open = np.linalg.norm(df_open[['UTM_Easting', 'UTM_Northing']] - centroid_open, axis=1)
+
+# Calculate the Euclidean distance from each point to the centroid for occluded data
+errors_occluded = np.linalg.norm(df_occluded[['UTM_Easting', 'UTM_Northing']] - centroid_occluded, axis=1)
+
+# Calculate the average error for both data sets
+avg_error_open = np.mean(errors_open)
+avg_error_occluded = np.mean(errors_occluded)
+
+print("Average error from centroid for open data:", avg_error_open)
+print("Average error from centroid for occluded data:", avg_error_occluded)
