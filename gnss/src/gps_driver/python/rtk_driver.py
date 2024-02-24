@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # license removed for brevity
-
+import os
 import utm
 import time 
 import serial
@@ -83,11 +83,11 @@ def UTCtoUTCEpoch(UTC):
     
 if __name__ == "__main__":
     i=1
+    rospy.init_node('rtk_gnss', anonymous=True)
     pub = rospy.Publisher('rtk_gnss', Customrtk, queue_size=10)
-    rospy.init_node('rtk_driver_node', anonymous=True)
     rate = rospy.Rate(10) # 10hz
     rospy.loginfo("Publisher Node Started, now publishing messages")
-    bag=rosbag.Bag('/home/rohit/catkin_ws/tester.bag','w')
+    bag=rosbag.Bag(os.getcwd()+'/testrtk.bag','w')
 
     #print('1')
     while not rospy.is_shutdown():
@@ -150,7 +150,7 @@ if __name__ == "__main__":
                 msg=Customrtk()
                 msg.header = Header()
                 msg.header.seq=i
-                msg.header.frame_id = 'GPS1_Frame'
+                msg.header.frame_id = 'RTK1_Frame'
                 msg.header.stamp.secs = CurrentTime[0]
                 msg.header.stamp.nsecs = CurrentTime[1]
                 msg.latitude = LatitudeSigned

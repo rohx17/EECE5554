@@ -6,6 +6,7 @@ import time
 import serial
 import rospy
 import rosbag
+import os
 from std_msgs.msg import Header
 from gps_driver.msg import Customgps
 
@@ -84,11 +85,11 @@ def UTCtoUTCEpoch(UTC):
 if __name__ == "__main__":
     
     i=1
+    rospy.init_node('gps', anonymous=True)
     pub = rospy.Publisher('gps', Customgps, queue_size=10)
-    rospy.init_node('gps_driver_node', anonymous=True)
     rate = rospy.Rate(10) # 10hz
     rospy.loginfo("Publisher Node Started, now publishing messages")
-    bag=rosbag.Bag('/home/rohit/catkin_ws/tester.bag','w')
+    bag=rosbag.Bag(os.getcwd()+'/testgps.bag','w')
 
     #print('1')
     while not rospy.is_shutdown():
