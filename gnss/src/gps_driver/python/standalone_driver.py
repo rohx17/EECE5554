@@ -86,7 +86,7 @@ if __name__ == "__main__":
     
     i=1
     rospy.init_node('gps', anonymous=True)
-    pub = rospy.Publisher('gps', Customgps, queue_size=10)
+    pub = rospy.Publisher('/gps', Customgps, queue_size=10)
     rate = rospy.Rate(10) # 10hz
     rospy.loginfo("Publisher Node Started, now publishing messages")
     bag=rosbag.Bag(os.getcwd()+'/testgps.bag','w')
